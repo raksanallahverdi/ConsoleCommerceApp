@@ -9,6 +9,7 @@ namespace Core.Constants.Operations;
 public enum CustomerOperations
 {
     Exit,
+    SeeMyBankAccount,
     Buy,
     SeePurchasedProducts,
     SeePurchasedProductsByDate,

@@ -33,7 +33,7 @@ public class Messages
     public static void NotEnoughItem(string title)
     {
         Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine($"Unfortunatelt, We Don't have enough {title} ");
+        Console.WriteLine($"Unfortunately,Not enough {title} ");
         Console.ResetColor();
 
     }

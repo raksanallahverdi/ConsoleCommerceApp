@@ -15,8 +15,8 @@ public static class DbInitializer
     public static void SeedAdmin()  {
         if (!_context.Admins.Any()) {
             Admin admin = new Admin     {
-                Name = "Admin",
-                Surname = "Admin"
+                Username = "Admin",
+                CreatedAt = DateTime.Now,
             };
             PasswordHasher<Admin> passwordHasher = new PasswordHasher<Admin>();
             admin.Password = passwordHasher.HashPassword(admin, "Admin123");

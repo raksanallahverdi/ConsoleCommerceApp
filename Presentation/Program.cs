@@ -3,20 +3,23 @@ using Application.Services.Abstract;
 using Application.Services.Concrete;
 using Core.Constants;
 using Core.Constants.Operations;
+using System.Threading;
 using Data;
 using Data.UnitOfWork.Concrete;
 
 public static class Program
 {
+    private static readonly UnitOfWork _unitOfWork;
     private static readonly AdminService _adminService;
     private static readonly SellerService _sellerService;
     private static readonly CustomerService _customerService;
 
     static Program()
     {
-        _adminService = new AdminService();
-        _sellerService = new SellerService();
-        _customerService = new CustomerService();
+        _unitOfWork= new UnitOfWork();
+        _adminService = new AdminService(_unitOfWork);
+        _sellerService = new SellerService(_unitOfWork);
+        _customerService = new CustomerService(_unitOfWork);
 
 
     }
@@ -72,6 +75,7 @@ public static class Program
 
             while (true)
             {
+                Thread.Sleep(2300);
                 Console.WriteLine(" ");
                 Console.WriteLine("---Menu---");
                 Console.WriteLine(" ");
@@ -179,16 +183,20 @@ public static class Program
         {
             while (true)
             {
+                Thread.Sleep(2300);
                 Console.WriteLine(" ");
                 Console.WriteLine("--Menu--");
-                Console.WriteLine("1.Add Product");
-                Console.WriteLine("2.Change Product Quantity");
-                Console.WriteLine("3.Delete Product");
-                Console.WriteLine("4.See Who Purchased Products");
-                Console.WriteLine("5.See Purchased Product For Date");
-                Console.WriteLine("6.Filter Product For Name");
-                Console.WriteLine("7.See Total Income");
-                Console.WriteLine("8.Get All Products");
+                Console.WriteLine("1.Get All Products");
+                Console.WriteLine("2.Get My Products");
+                Console.WriteLine("3.See My Bank Account");
+                Console.WriteLine("4.Add Product");
+                Console.WriteLine("5.Update Product");
+                Console.WriteLine("6.Change Product Quantity");
+                Console.WriteLine("7.Delete Product");
+                Console.WriteLine("8.See Who Purchased Products");
+                Console.WriteLine("9.See Purchased Product For Date");
+                Console.WriteLine("10.Filter Product For Name");
+                Console.WriteLine("11.See Total Income");
                 Console.WriteLine("0.Exit");
                 Console.WriteLine(" ");
                 Console.WriteLine("Choose From Menu");
@@ -200,8 +208,20 @@ public static class Program
                 {
                     switch ((SellerOperations)choice)
                     {
+                        case SellerOperations.GetAllProducts:
+                            _sellerService.GetProducts();
+                            break;
+                        case SellerOperations.GetMyProducts:
+                            _sellerService.GetMyProducts();
+                            break;
+                        case SellerOperations.SeeMyBankAccount:
+                            _sellerService.SeeMyBankAccount();
+                            break;
                         case SellerOperations.Add:
                             _sellerService.AddProduct();
+                            break;
+                        case SellerOperations.UpdateProduct:
+                            _sellerService.UpdateProduct();
                             break;
                         case SellerOperations.ChangeProductQuantity:
                             _sellerService.ChangeProductQuantity();
@@ -220,9 +240,6 @@ public static class Program
                             break;
                         case SellerOperations.SeeIncome:
                             _sellerService.SeeTotalIncome();
-                            break;
-                        case SellerOperations.GetAllProducts:
-                            _sellerService.GetProducts();
                             break;
                         case SellerOperations.Exit:
                             MainMenu();
@@ -251,12 +268,14 @@ public static class Program
         {
             while (true)
             {
+                Thread.Sleep(2300);
                 Console.WriteLine(" ");
                 Console.WriteLine("--Menu--");
-                Console.WriteLine("1.Buy Product");
-                Console.WriteLine("2.See Purchased Products");
-                Console.WriteLine("3.See Purchased Products By Date");
-                Console.WriteLine("4.Filter");
+                Console.WriteLine("1.See My Bank Account");
+                Console.WriteLine("2.Buy Product");
+                Console.WriteLine("3.See Purchased Products");
+                Console.WriteLine("4.See Purchased Products By Date");
+                Console.WriteLine("5.Filter");
                 Console.WriteLine("0.Exit");
                 Console.WriteLine(" ");
                 Console.WriteLine("Choose From Menu");
@@ -268,6 +287,9 @@ public static class Program
                 {
                     switch ((CustomerOperations)choice)
                     {
+                        case CustomerOperations.SeeMyBankAccount:
+                            _customerService.SeeMyBankAccount();
+                            break;
                         case CustomerOperations.Buy:
                             _customerService.BuyProduct();
                             break;

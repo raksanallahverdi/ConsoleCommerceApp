@@ -11,19 +11,19 @@ public class AdminService : IAdminService
 {
 
     private readonly UnitOfWork _unitOfWork;
-    public AdminService()
+    public AdminService(UnitOfWork unitOfWork)
     {
-        _unitOfWork = new UnitOfWork();
+        _unitOfWork = unitOfWork;
 
     }
     public bool AdminLogin()
     {
-        Messages.InputMessage("Admin Name");
+        Messages.InputMessage("Admin Username");
         string adminName = Console.ReadLine();
         Messages.InputMessage("Password");
         string password = Console.ReadLine();
 
-        var admin = _unitOfWork.Admins.GetAll().FirstOrDefault(x => x.Name == adminName);
+        var admin = _unitOfWork.Admins.GetAll().FirstOrDefault(x => x.Username == adminName);
 
         if (admin == null)
         {
@@ -132,7 +132,8 @@ public class AdminService : IAdminService
             PhoneNumber = newPhoneNumber,
             Email = sellerEmail,
             Pin = sellerPin,
-            SerialNumber = sellerSerialNumber
+            SerialNumber = sellerSerialNumber,
+            CreatedAt = DateTime.Now
         };
 
         seller.Password = passwordHasher.HashPassword(seller, sellerPassword);
@@ -255,7 +256,8 @@ public class AdminService : IAdminService
             PhoneNumber = newPhoneNumber,
             Email = customerEmail,
             Pin = customerPin,
-            SerialNumber = customerSerialNumber
+            SerialNumber = customerSerialNumber,
+            CreatedAt= DateTime.Now
         };
         customer.Password = passwordHasher.HashPassword(customer, customerPassword);
 

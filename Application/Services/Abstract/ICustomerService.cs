@@ -2,9 +2,9 @@
 
 public interface ICustomerService
 {
-    public void BuyProduct() { }
-    public void SeePurchasedProducts() { }
-    public void SeePurchasedProductsByDate() { }
-    public void Filter() { }
+    public void BuyProduct();
+    public void SeePurchasedProducts();
+    public void SeePurchasedProductsByDate();
+    public void Filter();
 
 }

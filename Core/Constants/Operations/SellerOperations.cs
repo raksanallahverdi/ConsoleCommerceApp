@@ -9,14 +9,17 @@ namespace Core.Constants.Operations
     public enum SellerOperations
     {
         Exit,
+        GetAllProducts,
+        GetMyProducts,
+        SeeMyBankAccount,
         Add,
+        UpdateProduct,
         ChangeProductQuantity,
         Delete,
         SeeWhoPurchased,
         SeeProductForDate,
         Filter,
         SeeIncome,
-        GetAllProducts
 
 
     }

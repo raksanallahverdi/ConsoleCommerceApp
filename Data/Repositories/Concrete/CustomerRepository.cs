@@ -15,7 +15,11 @@ namespace Data.Repositories.Concrete;
         {
             _context = context;
         }
-  
+    public void Update(Customer customer)
+    {
+        _context.Customers.Update(customer);
+    }
+
 
 }
 

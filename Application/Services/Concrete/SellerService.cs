@@ -5,14 +5,23 @@ using Data.UnitOfWork.Concrete;
 using Core.Entities;
 using Microsoft.AspNetCore.Identity;
 using System.Globalization;
+using Data.UnitOfWork;
 
 public class SellerService : ISellerService
 {
     private readonly UnitOfWork _unitOfWork;
     public int sellerId;
-    public SellerService()
+    public SellerService(UnitOfWork unitOfWork)
     {
-        _unitOfWork = new UnitOfWork();
+        _unitOfWork = unitOfWork;
+
+    }
+    public void SeeMyBankAccount()
+    {
+        var seller = _unitOfWork.Sellers.GetAll().FirstOrDefault(c => c.Id == sellerId);
+
+
+        Console.WriteLine($"My Bank Account: {seller.MyBankAccount}$");
 
     }
     public bool SellerLogin()
@@ -54,7 +63,14 @@ public class SellerService : ISellerService
         }
         foreach (var product in _unitOfWork.Products.GetAll())
         {
-            Console.WriteLine($"{product.Id}.{product.Name},  Price:{product.Price}$,  Quantity:{product.Quantity}, CreatedAt: {product.CreatedAt}, Seller:{product.Seller.Name} {product.Seller.Surname}");
+            Console.WriteLine($"{product.Id}.{product.Name},  Price:{product.Price}$,  Quantity:{product.Quantity},Category:{product.Category.Name}, CreatedAt: {product.CreatedAt}, Seller:{product.Seller.Name} {product.Seller.Surname}{(product.UpdatedAt.HasValue ? $", UpdatedAt: {product.UpdatedAt}" : "")}");
+        }
+    }
+    public void GetMyProducts() {
+
+        foreach (var existProduct in _unitOfWork.Products.GetAll().Where(x => x.SellerId == sellerId))
+        {
+            Console.WriteLine($"{existProduct.Id}.{existProduct.Name},  Price:{existProduct.Price}$,  Quantity:{existProduct.Quantity},Category: {existProduct.Category.Name}, CreatedAt: {existProduct.CreatedAt}, Seller:{existProduct.Seller.Name} {existProduct.Seller.Surname}{(existProduct.UpdatedAt.HasValue ? $", UpdatedAt: {existProduct.UpdatedAt}" : "")}");
         }
     }
     public void AddProduct()
@@ -90,7 +106,7 @@ public class SellerService : ISellerService
             goto ProductQuantitySection;
         }
 
-      
+
     CategoryIdSection:
         foreach (var category in _unitOfWork.Categories.GetAll())
         {
@@ -124,7 +140,7 @@ public class SellerService : ISellerService
             SellerId = sellerId,
             CategoryId = categoryId,
             Seller = seller,
-            Category=existCategory
+            Category = existCategory
 
         };
 
@@ -196,6 +212,81 @@ public class SellerService : ISellerService
         Messages.SuccessMessage("Product", "Deleted");
         _unitOfWork.Commit();
     }
+    public void UpdateProduct()
+    {
+        foreach (var existProduct in _unitOfWork.Products.GetAll().Where(x => x.SellerId == sellerId))
+        {
+            Console.WriteLine($"{existProduct.Id}.{existProduct.Name},  Price:{existProduct.Price}$,  Quantity:{existProduct.Quantity},Category: {existProduct.Category.Name}, CreatedAt: {existProduct.CreatedAt}, Seller:{existProduct.Seller.Name} {existProduct.Seller.Surname}{(existProduct.UpdatedAt.HasValue ? $", UpdatedAt: {existProduct.UpdatedAt}" : "")}");
+        }
+
+
+    inputProductId:
+        Messages.InputMessage("Product Id");
+        string productIdInput = Console.ReadLine();
+        int productId;
+        bool isSucceeded = int.TryParse(productIdInput, out productId);
+        if (!isSucceeded || productId <= 0)
+        {
+            Messages.InvalidInputMessage("Product Id");
+            goto inputProductId;
+        }
+
+        Product product = _unitOfWork.Products.Get(productId);
+        if (product == null || product.SellerId != sellerId)
+        {
+            Messages.NotFoundMessage("Product");
+            return;
+        }
+
+    inputProductPrice:
+        Messages.InputMessage("Price");
+        string userAnswer = Console.ReadLine();
+        decimal productPrice;
+        isSucceeded = decimal.TryParse(userAnswer, out productPrice);
+        if (!isSucceeded || productPrice <= 0)
+        {
+            Messages.InvalidInputMessage("Price");
+            goto inputProductPrice;
+        }
+    inputProductCategory:
+        foreach (var category in _unitOfWork.Categories.GetAll())
+        {
+            Console.WriteLine($"{category.Id}.{category.Name}");
+        }
+
+        Messages.InputMessage("Category Id");
+        string categoryIdInput = Console.ReadLine();
+        int categoryId;
+        isSucceeded = int.TryParse(categoryIdInput, out categoryId);
+        var existCategory = _unitOfWork.Categories.Get(categoryId);
+        if (!isSucceeded || existCategory == null)
+        {
+            Messages.InvalidInputMessage("Category Id");
+            goto inputProductCategory;
+        }
+    inputProductQuantity:
+        Messages.InputMessage("Quantity");
+        string categoryQuantityInput = Console.ReadLine();
+        int productQuantity;
+        isSucceeded= int.TryParse(categoryQuantityInput, out productQuantity);
+        if (!isSucceeded || productQuantity < 0)
+        {
+            Messages.InvalidInputMessage("Quantity");
+        }
+        product.Quantity = productQuantity;
+        product.Price = productPrice;
+        product.CategoryId = categoryId;
+        product.Category = existCategory;
+        product.UpdatedAt= DateTime.Now;
+        _unitOfWork.Products.Update(product);
+        _unitOfWork.Commit();
+        Messages.SuccessMessage("Product", "Updated");
+
+
+
+
+
+    }
 
     public void FilterForName()
     {
@@ -226,9 +317,11 @@ public class SellerService : ISellerService
         }
     }
 
-    public void SeeWhoPurchasedProduct() {
-        foreach (var order in _unitOfWork.Orders.GetAll()) {
-            if (order.SellerId == sellerId) 
+    public void SeeWhoPurchasedProduct()
+    {
+        foreach (var order in _unitOfWork.Orders.GetAll())
+        {
+            if (order.SellerId == sellerId)
             {
                 Console.WriteLine($"{order.Customer.Name} {order.Customer.Surname} purchased {order.ProductQuantity} {order.Product.Name} from you at: {order.CreatedAt},Your Income: {order.TotalPrice}$");
             }
@@ -264,7 +357,7 @@ public class SellerService : ISellerService
             }
         }
     }
-    public void SeeTotalIncome() 
+    public void SeeTotalIncome()
     {
         decimal total = 0;
         foreach (var order in _unitOfWork.Orders.GetAll())
